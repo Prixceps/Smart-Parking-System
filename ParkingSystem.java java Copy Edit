@@ -1,0 +1,60 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+
+public class ParkingSystem extends JFrame implements ActionListener {
+    HashMap<String, Vehicle> parkingLot = new HashMap<>();
+    JTextField vehicleNumber;
+    JButton enter, exit;
+    JTextArea status;
+
+    public ParkingSystem() {
+        setTitle("Smart Parking System");
+        setSize(400, 400);
+        setLayout(new FlowLayout());
+
+        vehicleNumber = new JTextField(15);
+        enter = new JButton("Enter");
+        exit = new JButton("Exit");
+        status = new JTextArea(10, 30);
+
+        enter.addActionListener(this);
+        exit.addActionListener(this);
+
+        add(new JLabel("Vehicle Number:"));
+        add(vehicleNumber);
+        add(enter);
+        add(exit);
+        add(new JScrollPane(status));
+
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        String number = vehicleNumber.getText().trim();
+        if (number.isEmpty()) return;
+
+        if (e.getSource() == enter) {
+            if (!parkingLot.containsKey(number)) {
+                Vehicle v = new Vehicle(number, new Date());
+                parkingLot.put(number, v);
+                status.append("Vehicle " + number + " entered at " + v.entryTime + "\n");
+            } else {
+                status.append("Already parked!\n");
+            }
+        }
+
+        if (e.getSource() == exit) {
+            Vehicle v = parkingLot.remove(number);
+            if (v != null) {
+                long minutes = (new Date().getTime() - v.entryTime.getTime()) / (1000 * 60);
+                double cost = minutes * 0.5;
+                status.append("Vehicle " + number + " exited.\nTotal time: " + minutes + " mins | Cost: ₹" + cost + "\n");
+            } else {
+                status.append("Vehicle not found in lot.\n");
+            }
+        }
+    }
+}
